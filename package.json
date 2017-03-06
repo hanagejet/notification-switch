@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cheerio-httpcli": "^0.6.11"
+    "cheerio-httpcli": "^0.6.11",
+    "firebase": "^3.7.0",
+    "moment": "^2.17.1"
   }
 }
