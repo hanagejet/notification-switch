@@ -16,18 +16,36 @@ const fetch = client.fetch('https://store.nintendo.co.jp/category/NINTENDOSWITCH
   console.log($('title').text());
 
   const buy_button = $('.content_area .add_area').html();
-  pushHtml(buy_button);
+  const html = buy_button.replace(/(\n|\t)/g, '');
+  pushHtml(html)
+  .then(function(response) {
+    console.log('Post Successed!!');
+    getLastHtml()
+    .then(function(lastHtml) {
+      if (lastHtml.indexOf(html) >= 0) {
+        // TODO: send change e-mail!!
+      }
+      // TODO: send not change e-mail :(
+    });
+  })
+  .catch(function(error) {
+    console.log(error);
+  });
 })
 
 const pushHtml = function(html) {
-  firebase.database().ref('data').push({
+  return firebase.database().ref('data').push({
     html: html,
     createDateAt: moment().format(),
-  })
-  .then(function(response) {
-    console.log('Success!!');
-  })
-  .catch(function(error) {
-    console.log(`Error Message: ${error}`);
   });
 };
+
+const getLastHtml = function() {
+  const lastHtml = [];
+  return new Promise(function(resolve, reject) {
+    firebase.database().ref('data').endAt().limitToLast(2).on('child_added', function(snapshot) {
+      lastHtml.push(snapshot.val());
+      return resolve(lastHtml[0]);
+    });
+  })
+}
