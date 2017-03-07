@@ -12,17 +12,6 @@ const TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 const TOKEN_PATH = TOKEN_DIR + 'gmail-nodejs-quickstart.json';
 
-// Load client secrets from a local file.
-fs.readFile(path.join(__dirname, 'client_secret.json'), function processClientSecrets(err, content) {
-  if (err) {
-    console.log('Error loading client secret file: ' + err);
-    return;
-  }
-  // Authorize a client with the loaded credentials, then call the
-  // Gmail API.
-  authorize(JSON.parse(content).web, sendMessage);
-});
-
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.
@@ -30,7 +19,7 @@ fs.readFile(path.join(__dirname, 'client_secret.json'), function processClientSe
  * @param {Object} credentials The authorization client credentials.
  * @param {function} callback The callback to call with the authorized client.
  */
-function authorize(credentials, callback) {
+function authorize(credentials, callback, raw) {
   const clientSecret = credentials.client_secret;
   const clientId = credentials.client_id;
   const redirectUrl = credentials.redirect_uris[0];
@@ -43,7 +32,7 @@ function authorize(credentials, callback) {
       getNewToken(oauth2Client, callback);
     } else {
       oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client);
+      callback(oauth2Client, raw);
     }
   });
 }
@@ -139,8 +128,7 @@ function makeBody(to, from, subject, message) {
   return encodedMail;
 }
 
-function sendMessage(auth) {
-  const raw = makeBody('taroage@gmail.com', 'taroage@gmail.com', 'test subject', 'test message');
+function sendMessage(auth, raw) {
   gmail.users.messages.send({
     auth: auth,
     userId: 'me',
@@ -151,6 +139,12 @@ function sendMessage(auth) {
     if (err) {
       return console.log(err);
     }
-    return console.log(response);
+    return console.log('Send response: ' + JSON.stringify(response));
   });
 }
+
+module.exports = {
+  sendMessage,
+  authorize,
+  makeBody,
+};
