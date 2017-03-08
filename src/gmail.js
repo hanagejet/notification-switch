@@ -11,6 +11,7 @@ const SCOPES = ['https://mail.google.com/'];
 const TOKEN_DIR = (process.env.HOME || process.env.HOMEPATH ||
     process.env.USERPROFILE) + '/.credentials/';
 const TOKEN_PATH = TOKEN_DIR + 'gmail-nodejs-quickstart.json';
+const TOKEN_ENV = process.env.TOKEN; // for heroku
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -26,15 +27,21 @@ function authorize(credentials, callback, raw) {
   const auth = new googleAuth();
   const oauth2Client = new auth.OAuth2(clientId, clientSecret, redirectUrl);
 
-  // Check if we have previously stored a token.
-  fs.readFile(TOKEN_PATH, function(err, token) {
-    if (err) {
-      getNewToken(oauth2Client, callback);
-    } else {
-      oauth2Client.credentials = JSON.parse(token);
-      callback(oauth2Client, raw);
-    }
-  });
+  if (TOKEN_ENV) {
+    console.log('PROCESS ENV TOKEN: ', TOKEN_ENV);
+    oauth2Client.credentials = JSON.parse(TOKEN_ENV);
+    callback(oauth2Client, raw);
+  } else {
+    // Check if we have previously stored a token.
+    fs.readFile(TOKEN_PATH, function(err, token) {
+      if (err) {
+        getNewToken(oauth2Client, callback);
+      } else {
+        oauth2Client.credentials = JSON.parse(token);
+        callback(oauth2Client, raw);
+      }
+    });
+  }
 }
 
 /**
