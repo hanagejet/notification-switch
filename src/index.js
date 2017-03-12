@@ -13,18 +13,15 @@ const app = express();
 firebase.initializeApp(config.firebase);
 
 app.get('/', function(request, response) {
-  const interval = 60 * 60 * 1000;
   response.send('Hello World');
-  init();
-  setInterval(function() {
-    init();
-  }, interval);
 });
 
 const port = process.env.PORT || 5000;
 app.listen(port, function() {
   console.log('Listening on ' + port);
 });
+
+init();
 
 function init() {
   client.fetch('https://store.nintendo.co.jp/category/NINTENDOSWITCH/HAC_S_KAYAA.html')
@@ -98,3 +95,7 @@ const getLastHtml = function() {
     });
   })
 }
+
+module.exports = {
+  init,
+};

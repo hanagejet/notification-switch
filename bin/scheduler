@@ -1,0 +1,3 @@
+#!/app/.heroku/node/bin/node
+
+require('../src/index.js');
