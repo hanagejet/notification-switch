@@ -1,3 +1,5 @@
+'use strict';
+
 const fs = require('fs');
 const path = require('path');
 const client = require('cheerio-httpcli');
@@ -5,13 +7,21 @@ const config = require('./config.js');
 const firebase = require('firebase');
 const moment = require('moment');
 const email = require('./gmail.js');
+const express = require('express');
+const app = express();
 
 firebase.initializeApp(config.firebase);
 
-const interval = 1000;
-setInterval(function() {
-  // TODO: init();
-}, interval);
+app.get('/', function(request, response) {
+  response.send('Hello World');
+});
+
+const port = process.env.PORT || 5000;
+app.listen(port, function() {
+  console.log('Listening on ' + port);
+});
+
+init();
 
 function init() {
   client.fetch('https://store.nintendo.co.jp/category/NINTENDOSWITCH/HAC_S_KAYAA.html')
@@ -56,8 +66,8 @@ function init() {
 }
 
 
-// Load client secrets from a local file.
 function send(raw) {
+  // Load client secrets from a local file.
   fs.readFile(path.join(__dirname, 'client_secret.json'), function processClientSecrets(err, content) {
     if (err) {
       console.log('Error loading client secret file: ' + err);
@@ -85,3 +95,7 @@ const getLastHtml = function() {
     });
   })
 }
+
+module.exports = {
+  init,
+};
